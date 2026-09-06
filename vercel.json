@@ -1,7 +1,7 @@
 {
   "services": {
-    "frontend": { "root": "frontend/", "framework": "nextjs" },
-    "backend": { "root": "backend/", "entrypoint": "src/index.js" }
+    "frontend": { "root": "frontend/", "framework": "vite" },
+    "backend": { "root": "backend/", "framework": "express", "entrypoint": "src/index.js" }
   },
   "rewrites": [
     {
