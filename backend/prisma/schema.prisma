@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     String          @id @default(uuid())
+  role                   String          @default("LISTENER")
+  email                  String          @unique
+  username               String?         @unique
+  password               String?
+  fullName               String?
+  artistProfile          String?
+  nationality            String?
+  phone                  String?
+  photo                  String?
+  nationalIdDoc          String?
+  selfPhotoDoc           String?
+  artistStatus           String          @default("PENDING")
+  isVerified             Boolean         @default(false)
+  isFirstLogin           Boolean         @default(true)
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+  collabRequestsReceived CollabRequest[] @relation("CollabReceiver")
+  collabRequests         CollabRequest[] @relation("CollabSender")
+  friendRequestsReceived FriendRequest[] @relation("FriendRequestReceiver")
+  friendRequests         FriendRequest[] @relation("FriendRequestSender")
+  lyricVids              LyricVideo[]
+  playlists              Playlist[]
+  songs                  Song[]
+  events                 Event[]
+}
+
+model Event {
+  id        String   @id @default(uuid())
+  type      String
+  userId    String?
+  songId    String?
+  metadata  String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+  song      Song?    @relation(fields: [songId], references: [id])
+
+  @@index([type, createdAt])
+  @@index([songId, createdAt])
+}
+
+model Song {
+  id            String         @id @default(uuid())
+  title         String
+  artistId      String
+  audioUrl      String
+  albumArtUrl   String?
+  backgroundUrl String?
+  duration      Int
+  genre         String?
+  lyricVideoId  String?        @unique
+  isPublished   Boolean        @default(false)
+  plays         Int            @default(0)
+  streams       Int            @default(0)
+  likes         Int            @default(0)
+  shares        Int            @default(0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  lyrics        Lyric[]
+  playlistSongs PlaylistSong[]
+  events        Event[]
+  lyricVideo    LyricVideo?    @relation("SongLyricVideo", fields: [lyricVideoId], references: [id])
+  artist        User           @relation(fields: [artistId], references: [id])
+}
+
+model Lyric {
+  id        String  @id @default(uuid())
+  songId    String
+  lyricText String
+  timestamp Int
+  font      String?
+  order     Int     @default(0)
+  song      Song    @relation(fields: [songId], references: [id], onDelete: Cascade)
+}
+
+model LyricVideo {
+  id           String   @id @default(uuid())
+  artistId     String
+  videoUrl     String
+  thumbnailUrl String?
+  songId       String?  @unique
+  createdAt    DateTime @default(now())
+  artist       User     @relation(fields: [artistId], references: [id])
+  song         Song?    @relation("SongLyricVideo")
+}
+
+model Playlist {
+  id             String         @id @default(uuid())
+  name           String
+  userId         String
+  isPublic       Boolean        @default(true)
+  invitationCode String         @unique @default(uuid())
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  user           User           @relation(fields: [userId], references: [id])
+  songs          PlaylistSong[]
+}
+
+model PlaylistSong {
+  playlistId String
+  songId     String
+  addedAt    DateTime @default(now())
+  song       Song     @relation(fields: [songId], references: [id])
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+
+  @@id([playlistId, songId])
+}
+
+model FriendRequest {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  status     String   @default("PENDING")
+  createdAt  DateTime @default(now())
+  receiver   User     @relation("FriendRequestReceiver", fields: [receiverId], references: [id])
+  sender     User     @relation("FriendRequestSender", fields: [senderId], references: [id])
+}
+
+model CollabRequest {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  status     String   @default("PENDING")
+  message    String?
+  createdAt  DateTime @default(now())
+  receiver   User     @relation("CollabReceiver", fields: [receiverId], references: [id])
+  sender     User     @relation("CollabSender", fields: [senderId], references: [id])
+}

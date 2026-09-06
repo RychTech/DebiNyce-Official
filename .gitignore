@@ -1,0 +1,33 @@
+# Node
+node_modules/
+*.log
+npm-debug.log*
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+.env.production
+.env.test
+
+# Builds
+dist/
+build/
+coverage/
+
+# Prisma dev db
+*.db
+*.db-journal
+prisma/dev.db
+
+# Uploads & media (large binaries — served from R2/object storage in production)
+backend/uploads/
+Sample Music/
+
+# Project memory — contains credentials, not for public repo
+DEBINYCE_MEMORY.md
+Phase1_Reminders.md
+
+# OS
+.DS_Store
+Thumbs.db
